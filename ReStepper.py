@@ -46,8 +46,8 @@ from urllib.request import urlopen
 # constants
 INDENT: Final[str] = "   "
 VERBOSE: Final[bool] = "--verbose" in argv
-REPO_URL_GITHUB: Final[str] = "github.com/markjoshwel/pokkat"
-REPO_URL_FORGE: Final[str] = "forge.joshwel.co/mark/pokkat"
+REPO_URL_GITHUB: Final[str] = "github.com/markjoshwel/sota32"
+REPO_URL_FORGE: Final[str] = "forge.joshwel.co/mark/sota32"
 COMMIT_MESSAGE: Final[str] = "chore(restep): sync with forge"
 COMMIT_AUTHOR: Final[str] = "sota staircase ReStepper <ssrestepper@joshwel.co>"
 NEUTERED_GITATTRIBUTES: Final[str] = (
