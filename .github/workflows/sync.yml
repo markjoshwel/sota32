@@ -1,0 +1,36 @@
+name: "sync from forge.joshwel.co"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *" # every hour
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          remove-large-packages: "true"
+          remove-cached-tools: "true"
+
+      - uses: nixbuild/nix-quick-install-action@v34
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: clone forge.joshwel.co/mark/sota32
+        run: |
+          mkdir -p ${{ runner.temp }}/sota32
+          git clone https://forge.joshwel.co/mark/sota32 ${{ runner.temp }}/sota32
+
+      - name: restep
+        env:
+          SS_RESTEPPER_TOKEN: ${{ secrets.PAT }}
+        run: |
+          cd ${{ runner.temp }}/sota32
+          nix develop --command python ReStepper.py
