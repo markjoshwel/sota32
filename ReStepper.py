@@ -1,7 +1,7 @@
 # sota staircase ReStepper
 # forge -> github one-way repo sync script
 #
-# Copyright (c) 2025 mark joshwel <mark@joshwel.co>
+# Copyright (c) 2024-2026 mark joshwel <mark@joshwel.co>
 # Zero-Clause BSD Licence
 #
 # Permission to use, copy, modify, and/or distribute this software for
@@ -42,12 +42,11 @@ from traceback import format_tb
 from typing import Callable, Final, Protocol, TypeVar
 from urllib.request import urlopen
 
-
 # constants
 INDENT: Final[str] = "   "
 VERBOSE: Final[bool] = "--verbose" in argv
-REPO_URL_GITHUB: Final[str] = "github.com/markjoshwel/sota32"
-REPO_URL_FORGE: Final[str] = "forge.joshwel.co/mark/sota32"
+REPO_URL_GITHUB: Final[str] = getenv("SS_RESTEPPER_GITHUB_URL", f"github.com/markjoshwel/{Path(__file__).parent.name}")
+REPO_URL_FORGE: Final[str] = getenv("SS_RESTEPPER_FORGE_URL", f"forge.joshwel.co/mark/{Path(__file__).parent.name}")
 COMMIT_MESSAGE: Final[str] = "chore(restep): sync with forge"
 COMMIT_AUTHOR: Final[str] = "sota staircase ReStepper <ssrestepper@joshwel.co>"
 NEUTERED_GITATTRIBUTES: Final[str] = (
@@ -209,7 +208,9 @@ def run(
 try:
     # noinspection PyUnresolvedReferences
     # noinspection PyUnresolvedReferences
-    from tqdm import __version__ as tqdm_version  # type: ignore  # pyright: ignore[reportMissingModuleSource]
+    from tqdm import (
+        __version__ as tqdm_version,  # type: ignore  # pyright: ignore[reportMissingModuleSource]
+    )
     from tqdm import tqdm  # type: ignore  # pyright: ignore[reportMissingModuleSource]
 
     _tqdm_major, _tqdm_minor, _tqdm_patch = map(int, tqdm_version.split("."))
@@ -857,7 +858,7 @@ def main() -> None:
     with TemporaryDirectory(delete="--keep" not in argv) as temp_dir:
         temp_path = Path(temp_dir)
         print(
-            "sota staircase ReStepper v14",
+            "sota staircase ReStepper v15",
             f"     real repo : {repo_path}",
             f"     temp repo : {temp_dir}",
             f"   sidestepper : {sidestepper_binary}"
@@ -909,7 +910,9 @@ def main() -> None:
 
         def get_repo_files() -> list[Path]:
             files: list[Path] = []
-            for file in run("git ls-files", wd=repo_path).stdout.decode().splitlines():
+            for file in (
+                run("git ls-files -z", wd=repo_path).stdout.decode().split("\x00")
+            ):
                 file = file.strip()
                 if not file:
                     continue
@@ -951,11 +954,13 @@ def main() -> None:
             ),
             exitcode=9,
         )
-        if all([
-            str(temp_path.absolute()) != r["stdout"].strip(),
-            # quick macOS hack
-            f"/private{temp_path.absolute()}" != r["stdout"].strip(),
-        ]):
+        if all(
+            [
+                str(temp_path.absolute()) != r["stdout"].strip(),
+                # quick macOS hack
+                f"/private{temp_path.absolute()}" != r["stdout"].strip(),
+            ]
+        ):
             log_err(
                 f"not inside the temp dir '{str(temp_path.absolute())}' (whuh? internal?)",
                 show_r=True,
