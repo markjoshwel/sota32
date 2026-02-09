@@ -15,7 +15,7 @@ public class Car : MonoBehaviour
         {
             splineAnimator = GetComponent<SplineAnimate>();
         }
-        splineAnimator.Container= CarManger.Instance.roadSplineContainer;
+        splineAnimator.Container= CarManger.INSTANCE.roadSplineContainer;
         splineAnimator.Play();
         // Ensure Rigidbody is set up correctly for triggers
         rb = GetComponent<Rigidbody>();
@@ -31,7 +31,7 @@ public class Car : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log($"[{gameObject.name}] OnTriggerEnter detected: {other.gameObject.name}, Tag: {other.tag}, IsTrigger: {other.isTrigger}");
-        
+
         if (other.CompareTag("Car"))
         {
             Debug.Log($"[{gameObject.name}] Pausing due to car ahead: {other.gameObject.name}");
@@ -42,7 +42,7 @@ public class Car : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         Debug.Log($"[{gameObject.name}] OnTriggerExit detected: {other.gameObject.name}, Tag: {other.tag}");
-        
+
         if (other.CompareTag("Car"))
         {
             Debug.Log($"[{gameObject.name}] Resuming after car cleared: {other.gameObject.name}");
