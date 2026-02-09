@@ -6,8 +6,9 @@ using UnityEngine.Splines;
 [RequireComponent(typeof(Rigidbody))]
 public class Car : MonoBehaviour
 {
-    [SerializeField]private SplineAnimate splineAnimator;
+    [SerializeField] private SplineAnimate splineAnimator;
     private Rigidbody rb;
+    private TrafficLight currentTrafficLight;
 
     private void Start()
     {
@@ -15,7 +16,8 @@ public class Car : MonoBehaviour
         {
             splineAnimator = GetComponent<SplineAnimate>();
         }
-        splineAnimator.Container= CarManger.INSTANCE.roadSplineContainer;
+
+        splineAnimator.Container = CarManger.INSTANCE.roadSplineContainer;
         splineAnimator.Play();
         // Ensure Rigidbody is set up correctly for triggers
         rb = GetComponent<Rigidbody>();
@@ -24,19 +26,46 @@ public class Car : MonoBehaviour
             rb.isKinematic = true; // Kinematic since we're moving via spline
             rb.useGravity = false;
         }
-        
+
         Debug.Log($"Car {gameObject.name} initialized. Has Rigidbody: {rb != null}");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"[{gameObject.name}] OnTriggerEnter detected: {other.gameObject.name}, Tag: {other.tag}, IsTrigger: {other.isTrigger}");
+        // Debug.Log($"[{gameObject.name}] OnTriggerEnter detected: {other.gameObject.name}, Tag: {other.tag}, IsTrigger: {other.isTrigger}");
 
         if (other.CompareTag("Car"))
         {
-            Debug.Log($"[{gameObject.name}] Pausing due to car ahead: {other.gameObject.name}");
+            // Debug.Log($"[{gameObject.name}] Pausing due to car ahead: {other.gameObject.name}");
             splineAnimator.Pause();
         }
+
+        if (other.CompareTag("TrafficLight"))
+        {
+            Debug.Log("[{gameObject.name}] Pausing due to traffic light: " + other.gameObject.name);
+            currentTrafficLight = other.transform.parent.GetComponent<TrafficLight>();
+            if (currentTrafficLight.currentState == TrafficLight.State.Red)
+            {
+                splineAnimator.Pause();
+            }
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("TrafficLight"))
+        {
+            print(currentTrafficLight.currentState);
+            if (currentTrafficLight.currentState == TrafficLight.State.Green)
+            {
+                Invoke("StopToDrive", 0.5f); // Resume after 1 second
+            }
+        }
+    }
+
+    private void StopToDrive()
+    {
+        splineAnimator.Play();
     }
 
     private void OnTriggerExit(Collider other)
@@ -46,7 +75,7 @@ public class Car : MonoBehaviour
         if (other.CompareTag("Car"))
         {
             Debug.Log($"[{gameObject.name}] Resuming after car cleared: {other.gameObject.name}");
-            splineAnimator.Play();
+            Invoke("StopToDrive", 2f); // Resume after 1 second
         }
     }
 
