@@ -75,7 +75,7 @@ public class Car : MonoBehaviour
         if (other.CompareTag("Car"))
         {
             Debug.Log($"[{gameObject.name}] Resuming after car cleared: {other.gameObject.name}");
-            Invoke("StopToDrive", 2f); // Resume after 1 second
+            Invoke("StopToDrive", 0.5f); // Resume after 1 second
         }
     }
 

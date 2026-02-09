@@ -11,7 +11,7 @@ public class TrafficLight : MonoBehaviour
     }
     [SerializeField] private Transform lightsObject;
     [SerializeField] private GameObject[] greenLights, yellowLights, redLights;
-    [SerializeField] private float greenDuration = 5f, yellowDuration = 2f, redDuration = 5f;
+    [SerializeField] private float greenDuration = 5f, yellowDuration = 2f, redDuration = 5f,greenRedVariance=2f;
     [SerializeField] private GameObject vehicleStopTriggerBox;
     public State currentState = State.Red;
     
@@ -27,12 +27,12 @@ public class TrafficLight : MonoBehaviour
                     SetLights(redLights);
                     break;
                 case State.Green:
-                    yield return new WaitForSeconds(greenDuration);
+                    yield return new WaitForSeconds(Random.Range(greenDuration-greenRedVariance,greenDuration+greenRedVariance));
                     currentState = State.Yellow;
                     SetLights(yellowLights);
                     break;
                 case State.Red:
-                    yield return new WaitForSeconds(redDuration);
+                    yield return new WaitForSeconds(Random.Range(redDuration-greenRedVariance,redDuration+greenRedVariance));
                     currentState = State.Green;
                     SetLights(greenLights);
                     break;
