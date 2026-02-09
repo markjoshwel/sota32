@@ -1,0 +1,4 @@
+[0209/150138.266:ERROR:base\i18n\icu_util.cc:223] Invalid file descriptor to ICU data received.
+[0209/150138.341:ERROR:base\i18n\icu_util.cc:223] Invalid file descriptor to ICU data received.
+[0209/150138.372:ERROR:base\i18n\icu_util.cc:223] Invalid file descriptor to ICU data received.
+[0209/150138.404:WARNING:ui\base\resource\resource_bundle.cc:528] locale_file_path.empty() for locale 
