@@ -138,12 +138,13 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     - _clamp_max: 0.8
     - _depth: 0.75
-    - _displacement: 0.45
+    - _displacement: 0.39
     - _foam_depth: -0.07
-    - _foam_strength: 0.03
+    - _foam_strength: 0.007
     - _foam_tile: 1.98
     - _metallic: -0.18
     - _normal_strength: 5.64

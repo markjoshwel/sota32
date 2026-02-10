@@ -6474,8 +6474,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 464474201}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 741949366}
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+--- !u!1 &441594015 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3153735228233242761, guid: d2e8c4942af99c143a3f6e55a6c91c7f, type: 3}
+  m_PrefabInstance: {fileID: 1110323726}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &444277458
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9619,11 +9627,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5202341895802565206, guid: 6dff1a1f8c6e84f489ab2741db2baa4f, type: 3}
   m_PrefabInstance: {fileID: 726132402}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &741949354 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 441087506}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &741949360 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
   m_PrefabInstance: {fileID: 441087506}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &741949366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741949354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b77cdec1c318d2e4abe001932be5d5b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  wheelchairModel: {fileID: 441594015}
+  heightOffset: -1.3
+  terrainAdjustSpeed: 10
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxRaycastDistance: 100
+  raycastOriginOffset: 2
+  followPlayerRotation: 1
+  alignToTerrainNormal: 0
+  rotationSmoothSpeed: 10
 --- !u!1001 &755949888
 PrefabInstance:
   m_ObjectHideFlags: 0
