@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ocean
-  m_Shader: {fileID: -6465566751694194690, guid: 1f8378e384aba5b4eaa8748ef6949691, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 335b124fe6fe6674184eb3e4c3b3242c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -82,15 +82,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _foam:
-        m_Texture: {fileID: 2800000, guid: 17d410bc11c9bc442a3cdabd409267ea, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4334246e257f93a4fb056444579cde99, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _mainnormal:
-        m_Texture: {fileID: 2800000, guid: 44f1fe4a6c74de44ca6c41854e729b75, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6e287ae0a544ca246b4eb8b63e391c94, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _secondnormal:
-        m_Texture: {fileID: 2800000, guid: f54138d70497ee242abef7bf9d0e28e9, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7a8de87e5c151dd4bb047cf4805211b4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -139,22 +139,22 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _clamp_max: 1.3
-    - _depth: 0
-    - _displacement: 2.19
-    - _foam_depth: 1
-    - _foam_strength: 1
-    - _foam_tile: 1
-    - _metallic: 0.2
-    - _normal_strength: 6.4
-    - _smoothness: 0.65
-    - _strength: 0.2
+    - _clamp_max: 0.8
+    - _depth: 0.75
+    - _displacement: 0.45
+    - _foam_depth: -0.07
+    - _foam_strength: 0.03
+    - _foam_tile: 1.98
+    - _metallic: -0.18
+    - _normal_strength: 5.64
+    - _smoothness: -3.39
+    - _strength: -4.76
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _deepwatercolor: {r: 0.18734777, g: 0.44652855, b: 0.6754716, a: 0.81960785}
-    - _shallowwatercolor: {r: 0.27462438, g: 0.4867924, b: 0.36642784, a: 0.49019608}
+    - _deepwatercolor: {r: 0.57050186, g: 0.7931423, b: 0.98490566, a: 1}
+    - _shallowwatercolor: {r: 0.48476326, g: 0.7277023, b: 0.9622641, a: 0.85882354}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

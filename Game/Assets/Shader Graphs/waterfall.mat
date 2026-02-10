@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: waterfall
-  m_Shader: {fileID: -6465566751694194690, guid: 5e34e9ae1e2d58f40aa0e73a75b4aa54, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 0e078c5c938926940b1644f504ad8300, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -127,18 +127,18 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _ripple_amount: 3.92
+    - _ripple_amount: 4.09
     - _vertex_offset_amount: 0.2
-    - _voronoi_scale: 9.5
-    - _voronoi_speed: 4.36
+    - _voronoi_scale: 1.11
+    - _voronoi_speed: 2.39
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _remap_in: {r: 0.2, g: 4.79, b: 0, a: 0}
-    - _remap_out: {r: 0.4, g: 3, b: 0, a: 0}
-    - _ripple_colour: {r: 0.65471697, g: 0.7047706, b: 1, a: 1}
-    - _ripple_speed: {r: 0, g: -0.5, b: 0, a: 0}
+    - _remap_in: {r: -0.41, g: 0.36, b: 0, a: 0}
+    - _remap_out: {r: 0.84, g: 3, b: 0, a: 0}
+    - _ripple_colour: {r: 0.37658235, g: 0.63203394, b: 0.8792453, a: 0.6431373}
+    - _ripple_speed: {r: -4.5, g: -0.5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
