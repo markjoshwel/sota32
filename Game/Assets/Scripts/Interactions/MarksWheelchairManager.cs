@@ -3,95 +3,124 @@ using UnityEngine;
 
 namespace Interactions
 {
+    [DisallowMultipleComponent]
     public class MarksWheelchairManager : MonoBehaviour
     {
-        /// <summary>
-        ///     character controller to move, if wheelchair is in xr origin
-        /// </summary>
-        [HelpBox("will use wheelchair game object transform if not set", HelpBoxMessageType.Warning)]
-        [SerializeField] private CharacterController characterController;
-        
-        /// <summary>
-        ///     resolved left wheelchair game object
-        /// </summary>
-        private MarksWheelchairWheelInteractable _leftWheelInteractable;
-        
-        /// <summary>
-        ///     resolved right wheelchair game object
-        /// </summary>
-        private MarksWheelchairWheelInteractable _rightWheelInteractable;
-        
-        /// <summary>
-        ///     the chosen object to manipulate
-        /// </summary>
-        private Transform _wheelchairTarget;
+        [Header("Chair Body")]
+        [SerializeField] private Rigidbody chairRigidbody;
+        [SerializeField] private BoxCollider chairCollider;
 
-        /// <summary>
-        ///    ratio of wheel rotation to movement distance
-        /// </summary>
-        [SerializeField] [Range(0.01f, 5.0f)]
-        private float gearRatio = 1.0f;
+        [Tooltip("Optional COM override (local space).")]
+        [SerializeField] private bool overrideCenterOfMass = true;
+
+        [SerializeField] private Vector3 centerOfMassLocal = new Vector3(0f, -0.25f, 0f);
+
+        [Header("Wheels (required)")]
+        [SerializeField] private WheelCollider leftWheel;
+        [SerializeField] private WheelCollider rightWheel;
+
+        [Header("Wheel input sources (required)")]
+        [SerializeField] private MarksWheelchairWheelInteractable leftWheelInput;
+        [SerializeField] private MarksWheelchairWheelInteractable rightWheelInput;
+
+        [Header("Drive")]
+        [SerializeField] private float maxBrakeTorqueWhenIdle = 50f;
+
+        [Tooltip("If true, manager forces wheel.motorTorque each FixedUpdate.")]
+        [SerializeField] private bool driveFromManager = true;
+
+        [Header("Wheel visuals (optional)")]
+        [SerializeField] private Transform leftWheelVisual;
+        [SerializeField] private Transform rightWheelVisual;
 
         private void Awake()
         {
-            // resolve which object to manipulate
-            _wheelchairTarget = characterController ? characterController.transform : gameObject.transform;
-            
-            // resolve wheels via name
-            var wheels = GetComponentsInChildren<MarksWheelchairWheelInteractable>();
-            foreach (var wheel in wheels)
-            {
-                var n = wheel.name.ToLowerInvariant();
-                if (n.Contains("left"))
-                {
-                    Logkat.Dev("MarksWheelchairManager: found left wheel interactable");
-                    _leftWheelInteractable = wheel;
-                }
-                else if (n.Contains("right"))
-                {
-                    Logkat.Dev("MarksWheelchairManager: found right wheel interactable");
-                    _rightWheelInteractable = wheel;
-                }
-            }
-            if (!_leftWheelInteractable || !_rightWheelInteractable)
-            {
-                Logkat.Panic("MarksWheelchairManager: could not find both left and right wheel interactables");
-            }
+            if (!chairRigidbody) chairRigidbody = GetComponentInChildren<Rigidbody>();
+            if (!chairCollider) chairCollider = GetComponentInChildren<BoxCollider>();
+
+            if (!chairRigidbody) Logkat.Panic("MarksWheelchairManager: Missing chair Rigidbody.");
+            if (!chairCollider) Logkat.Warn("MarksWheelchairManager: Missing chair BoxCollider (not fatal).");
+
+            if (!leftWheel || !rightWheel)
+                AutoResolveWheelCollidersByName();
+
+            if (!leftWheel || !rightWheel)
+                Logkat.Panic("MarksWheelchairManager: Missing left/right WheelCollider.");
+
+            if (!leftWheelInput || !rightWheelInput)
+                AutoResolveWheelInputsByName();
+
+            if (!leftWheelInput || !rightWheelInput)
+                Logkat.Panic("MarksWheelchairManager: Missing left/right wheel input interactables.");
+
+            // Stability: freeze roll/pitch.
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            chairRigidbody.constraints |= RigidbodyConstraints.FreezeRotationX;
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            chairRigidbody.constraints |= RigidbodyConstraints.FreezeRotationZ;
+
+            if (overrideCenterOfMass)
+                chairRigidbody.centerOfMass = centerOfMassLocal;
+
+            Logkat.Dev($"MarksWheelchairManager: Awake OK. RB={chairRigidbody.name}, LWheel={leftWheel.name}, RWheel={rightWheel.name}");
         }
-        
+
         private void FixedUpdate()
         {
-            // get rotation values from both wheels
-            var leftRotation = _leftWheelInteractable.rotation;
-            var rightRotation = _rightWheelInteractable.rotation;
-            
-            // calculate forward movement (average of both wheels)
-            var forwardMovement = (leftRotation + rightRotation) * 0.5f * gearRatio;
-            
-            // calculate turning (difference between wheels)
-            // if right wheel rotates more, turn right (positive rotation)
-            // if left wheel rotates more, turn left (negative rotation)
-            var turnAmount = (rightRotation - leftRotation) * gearRatio;
-            
-            // apply rotation (turning)
-            if (!Mathf.Approximately(turnAmount, 0f))
+            if (!driveFromManager) return;
+
+            var leftTorque = leftWheelInput.desiredMotorTorque;
+            var rightTorque = rightWheelInput.desiredMotorTorque;
+
+            leftWheel.motorTorque = leftTorque;
+            rightWheel.motorTorque = rightTorque;
+
+            // Optional “idle brake” to prevent slow sliding when nobody is pushing.
+            var anyPushing = Mathf.Abs(leftTorque) > 0.01f || Mathf.Abs(rightTorque) > 0.01f;
+            var brake = anyPushing ? 0f : maxBrakeTorqueWhenIdle;
+
+            leftWheel.brakeTorque = brake;
+            rightWheel.brakeTorque = brake;
+        }
+
+        private void LateUpdate()
+        {
+            // Keep visuals aligned to WheelCollider simulation.
+            if (leftWheelVisual && leftWheel) SyncWheelVisual(leftWheel, leftWheelVisual);
+            if (rightWheelVisual && rightWheel) SyncWheelVisual(rightWheel, rightWheelVisual);
+        }
+
+        private static void SyncWheelVisual(WheelCollider wc, Transform visual)
+        {
+            wc.GetWorldPose(out var pos, out var rot);
+            visual.position = pos;
+            visual.rotation = rot;
+        }
+
+        private void AutoResolveWheelCollidersByName()
+        {
+            var wheels = GetComponentsInChildren<WheelCollider>(true);
+            foreach (var wc in wheels)
             {
-                _wheelchairTarget.Rotate(Vector3.up, turnAmount * Time.fixedDeltaTime * 50f);
+                var n = wc.name.ToLowerInvariant();
+                if (!leftWheel && n.Contains("left")) leftWheel = wc;
+                if (!rightWheel && n.Contains("right")) rightWheel = wc;
             }
-            
-            // apply forward/backward movement
-            if (Mathf.Approximately(forwardMovement, 0f)) return;
-            
-            var movement = forwardMovement * Time.fixedDeltaTime * _wheelchairTarget.forward;
-            
-            if (characterController)
+
+            Logkat.Dev($"MarksWheelchairManager: AutoResolveWheelCollidersByName => left={(leftWheel ? leftWheel.name : "null")}, right={(rightWheel ? rightWheel.name : "null")}");
+        }
+
+        private void AutoResolveWheelInputsByName()
+        {
+            var inputs = GetComponentsInChildren<MarksWheelchairWheelInteractable>(true);
+            foreach (var wi in inputs)
             {
-                characterController.Move(movement);
+                var n = wi.name.ToLowerInvariant();
+                if (!leftWheelInput && n.Contains("left")) leftWheelInput = wi;
+                if (!rightWheelInput && n.Contains("right")) rightWheelInput = wi;
             }
-            else
-            {
-                _wheelchairTarget.position += movement;
-            }
+
+            Logkat.Dev($"MarksWheelchairManager: AutoResolveWheelInputsByName => left={(leftWheelInput ? leftWheelInput.name : "null")}, right={(rightWheelInput ? rightWheelInput.name : "null")}");
         }
     }
 }

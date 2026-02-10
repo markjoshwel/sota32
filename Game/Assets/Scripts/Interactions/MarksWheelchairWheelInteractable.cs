@@ -9,129 +9,150 @@ namespace Interactions
     [RequireComponent(typeof(XRSimpleInteractable))]
     public class MarksWheelchairWheelInteractable : MonoBehaviour
     {
-        /// <summary>
-        ///     wheel collider to track grabbing
-        /// </summary>
-        [SerializeField] private Collider wheelCollider;
-        
-        /// <summary>
-        ///     sensitivity multiplier for rotation input
-        /// </summary>
-        [SerializeField] [Range(0.01f, 5.0f)]
-        public float rotationSensitivity = 1.0f;
-        
-        /// <summary>
-        ///     friction applied per second to slow rotation towards 0
-        /// </summary>
-        [SerializeField] private float friction = 2.0f;
-        
-        /// <summary>
-        ///     current rotation to be read by MarksWheelchairManager per FixedUpdate
-        /// </summary>
-        [HideInInspector]
-        public float rotation;
-        
-        /// <summary>
-        ///     whether the wheel is currently grabbed by a VR controller
-        /// </summary>
-        public bool isGrabbed => _controller != null;
-        
+        [Header("Wheel")]
+        [SerializeField] private WheelCollider wheelCollider;
+
+        [Tooltip("Trigger collider used for XR hover/select. (Do NOT use WheelCollider for interaction.)")]
+        [SerializeField] private Collider interactionTriggerCollider;
+
+        [Header("Input -> Torque")]
+        [Tooltip("Controller downward speed (m/s) multiplied by this becomes motor torque.")]
+        [SerializeField] private float torqueScale = 250f;
+
+        [SerializeField] private float maxMotorTorque = 600f;
+
+        [Tooltip("How quickly DesiredMotorTorque returns to 0 when not grabbed (units: torque per second).")]
+        [SerializeField] private float torqueFriction = 1200f;
+
+        [Tooltip("Ignore tiny controller movements (m/s).")]
+        [SerializeField] private float velocityDeadzone = 0.05f;
+
+        [Tooltip("If true, pushing controller DOWN drives wheel forward; if false, use forward/back motion.")]
+        [SerializeField] private bool useDownwardPushModel = true;
+
+        [Header("Debug")]
+        [SerializeField] private bool verboseLogs = true;
+
+        public float desiredMotorTorque { get; private set; }
+
+        public bool isGrabbed => _interactorTransform != null;
+
         private XRSimpleInteractable _interactable;
-        private Transform _controller;
-        private Vector3 _lastControllerPos;
+        private Transform _interactorTransform;
+        private Vector3 _lastInteractorPos;
+
+        private Transform _root;
 
         private void Awake()
         {
-            Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Awake starting...");
-            
-            // find and set mesh collider if wheel collider not assigned
-            if (!wheelCollider)
-            {
-                var wheelMeshCollider = GetComponentInChildren<MeshCollider>();
-                if (wheelMeshCollider)
-                {
-                    Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Found MeshCollider, wired myself up!");
-                    wheelCollider = wheelMeshCollider;
-                }
-                else
-                {
-                    Logkat.Panic($"MarksWheelchairWheelInteractable [{name}]: No wheelCollider assigned and no MeshCollider found in children");
-                }
-            }
-            else
-            {
-                Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: wheelCollider already assigned: {wheelCollider.name}");
-            }
-            
-            // setup interactable events
-            _interactable = GetComponent<XRSimpleInteractable>();
-            if (_interactable)
-            {
-                Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Found XRSimpleInteractable, registering select events...");
-                _interactable.selectEntered.AddListener(OnGrabStart);
-                _interactable.selectExited.AddListener(OnGrabEnd);
-                Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Interactable enabled={_interactable.enabled}, colliders count={_interactable.colliders.Count}");
-            }
-            else
-            {
-                Logkat.Panic($"MarksWheelchairWheelInteractable [{name}]: XRSimpleInteractable component NOT FOUND!");
-            }
-        }
+            _root = transform.root;
 
-        private void Start()
-        {
-            Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Start - interactable isHovered={_interactable?.isHovered}, isSelected={_interactable?.isSelected}");
+            if (!wheelCollider)
+                wheelCollider = GetComponent<WheelCollider>() ? GetComponent<WheelCollider>() : GetComponentInChildren<WheelCollider>(true);
+
+            if (!wheelCollider)
+                Logkat.Panic($"MarksWheelchairWheelInteractable [{name}]: Missing WheelCollider reference.");
+
+            if (!interactionTriggerCollider)
+                interactionTriggerCollider = GetComponent<Collider>() ? GetComponent<Collider>() : GetComponentInChildren<Collider>(true);
+
+            if (!interactionTriggerCollider)
+                Logkat.Panic($"MarksWheelchairWheelInteractable [{name}]: Missing interaction trigger collider.");
+
+            if (!interactionTriggerCollider.isTrigger)
+                Logkat.Warn($"MarksWheelchairWheelInteractable [{name}]: interactionTriggerCollider '{interactionTriggerCollider.name}' is not a Trigger. Direct interactors typically expect triggers; set isTrigger=true.");
+
+            _interactable = GetComponent<XRSimpleInteractable>();
+            if (!_interactable)
+                Logkat.Panic($"MarksWheelchairWheelInteractable [{name}]: Missing XRSimpleInteractable.");
+
+            // Make sure THIS collider is used for interaction.
+            if (!_interactable.colliders.Contains(interactionTriggerCollider))
+                _interactable.colliders.Add(interactionTriggerCollider);
+
+            _interactable.selectEntered.AddListener(OnSelectEntered);
+            _interactable.selectExited.AddListener(OnSelectExited);
+
+            if (verboseLogs)
+            {
+                _interactable.hoverEntered.AddListener(_ => Logkat.Dev($"[{name}] HOVER ENTER"));
+                _interactable.hoverExited.AddListener(_ => Logkat.Dev($"[{name}] HOVER EXIT"));
+            }
+
+            if (verboseLogs)
+                Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: Awake OK. WheelCollider={wheelCollider.name}, InteractionCollider={interactionTriggerCollider.name}, InteractableColliders={_interactable.colliders.Count}");
         }
 
         private void FixedUpdate()
         {
-            if (_controller)
+            if (_interactorTransform)
             {
-                // calculate controller velocity
-                var velocity = (_controller.position - _lastControllerPos) / Time.fixedDeltaTime;
-                _lastControllerPos = _controller.position;
-                
-                // wheelchair down direction (push direction)
-                var wheelchairDown = -transform.root.up;
-                
-                // calculate how fast the controller moved downward
-                var downwardSpeed = Vector3.Dot(velocity, wheelchairDown);
-                
-                // increase rotation based on downward velocity (pushing down = positive rotation)
-                rotation += downwardSpeed * rotationSensitivity;
-            }
-            
-            // apply friction to slow rotation towards 0
-            ApplyFriction();
-        }
-        
-        private void ApplyFriction()
-        {
-            if (Mathf.Approximately(rotation, 0f))
-            {
-                rotation = 0f;
-                return;
-            }
-            
-            var frictionAmount = friction * Time.fixedDeltaTime;
+                var pos = _interactorTransform.position;
+                var v = (pos - _lastInteractorPos) / Time.fixedDeltaTime;
+                _lastInteractorPos = pos;
 
-            // forward rotation (positive), subtract friction until 0
-            rotation = rotation > 0f ? Mathf.Max(0f, rotation - frictionAmount) :
-                // backward rotation (negative), add friction until 0
-                Mathf.Min(0f, rotation + frictionAmount);
+                float driveSpeed;
+
+                if (useDownwardPushModel)
+                {
+                    // Down relative to chair/root.
+                    var down = -_root.up;
+                    driveSpeed = Vector3.Dot(v, down); // m/s downward
+                }
+                else
+                {
+                    // Forward/back relative to chair/root.
+                    var fwd = _root.forward;
+                    driveSpeed = Vector3.Dot(v, fwd); // m/s forward
+                }
+
+                if (Mathf.Abs(driveSpeed) < velocityDeadzone)
+                    driveSpeed = 0f;
+
+                var targetTorque = Mathf.Clamp(driveSpeed * torqueScale, -maxMotorTorque, maxMotorTorque);
+
+                desiredMotorTorque = targetTorque;
+            }
+            else
+            {
+                // No grab: decay torque smoothly to 0.
+                desiredMotorTorque = MoveTowardsWithFriction(desiredMotorTorque, 0f, torqueFriction);
+            }
         }
-        
-        private void OnGrabStart(SelectEnterEventArgs args)
+
+        private float MoveTowardsWithFriction(float current, float target, float frictionPerSecond)
         {
-            _controller = args.interactorObject.transform;
-            _lastControllerPos = _controller.position;
-            Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: GRABBED by {args.interactorObject.transform.name} at position {_lastControllerPos}");
+            if (Mathf.Approximately(current, target)) return target;
+            var maxDelta = frictionPerSecond * Time.fixedDeltaTime;
+            return Mathf.MoveTowards(current, target, maxDelta);
         }
-        
-        private void OnGrabEnd(SelectExitEventArgs args)
+
+        private void OnSelectEntered(SelectEnterEventArgs args)
         {
-            Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: RELEASED by {args.interactorObject.transform.name}");
-            _controller = null;
+            _interactorTransform = args.interactorObject.transform;
+            _lastInteractorPos = _interactorTransform.position;
+
+            if (verboseLogs)
+                Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: SELECT ENTER by {_interactorTransform.name}");
+        }
+
+        private void OnSelectExited(SelectExitEventArgs args)
+        {
+            // Only clear if the exiting interactor is the one we’re tracking.
+            var exiting = args.interactorObject.transform;
+
+            if (_interactorTransform == exiting)
+            {
+                if (verboseLogs)
+                    Logkat.Dev($"MarksWheelchairWheelInteractable [{name}]: SELECT EXIT by {exiting.name}");
+
+                _interactorTransform = null;
+            }
+            else
+            {
+                if (verboseLogs)
+                    Logkat.Warn($"MarksWheelchairWheelInteractable [{name}]: SELECT EXIT from {exiting.name} but current is {_interactorTransform?.name ?? "null"}");
+            }
         }
     }
 }
