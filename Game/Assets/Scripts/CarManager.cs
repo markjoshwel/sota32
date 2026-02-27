@@ -28,12 +28,34 @@ public class CarManger : MonoBehaviour
         _timeBetweenCars = UnityEngine.Random.Range(minTimeBetweenCars, maxTimeBetweenCars);
     }
 
+    private bool IsCarAtSpawnPoint()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, 6f);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Car"))
+                return true;
+        }
+        return false;
+    }
+
     private void SpawnCar()
     {
-        var carPrefab= carPrefabs[UnityEngine.Random.Range(0, carPrefabs.Length)];
+        if (IsCarAtSpawnPoint())
+        {
+            RandomCarSpawnTime();
+            return;
+        }
+
+        var carPrefab = carPrefabs[UnityEngine.Random.Range(0, carPrefabs.Length)];
         Instantiate(carPrefab, transform.position, transform.rotation);
         RandomCarSpawnTime();
         _currentCars++;
+    }
+
+    public void DecrementCarCount()
+    {
+        _currentCars = Mathf.Max(0, _currentCars - 1);
     }
 
     public static CarManger INSTANCE;
