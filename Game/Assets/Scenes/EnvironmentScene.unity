@@ -4427,12 +4427,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4796d401f57c1c44aec949d3449f141, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarManger
-  roadSplineContainer: {fileID: 0}
+  roadSplineContainer: {fileID: 253449143}
   carPrefabs:
   - {fileID: 3474832127859046337, guid: edb44a1c7b208144190ff0b6eebecc13, type: 3}
   - {fileID: 4949372324388261566, guid: b5afc261225e6554b97af3c07cf43c3d, type: 3}
-  maxCars: 5
-  minTimeBetweenCars: 2
+  maxCars: 100
+  minTimeBetweenCars: 5
   maxTimeBetweenCars: 10
 --- !u!1001 &258459404
 PrefabInstance:
