@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7884082668395633242}
   - component: {fileID: 4513210560754628407}
   m_Layer: 0
-  m_Name: Traffic Light
+  m_Name: Arwen's Traffic Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
