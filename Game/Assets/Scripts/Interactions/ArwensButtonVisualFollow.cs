@@ -5,7 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace Interactions
 {
-    public class ButtonFollowVisual : MonoBehaviour
+    public class ArwensButtonFollowVisual : MonoBehaviour
     {
         public Transform visualTarget;
         public Vector3 localAxis;
