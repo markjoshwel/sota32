@@ -104,7 +104,7 @@
             {
                 "type": "UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "ShapeBuilder.LastSize.Plane",
-                "value": "{\"m_Value\":{\"x\":-0.5483245849609375,\"y\":0.0,\"z\":2.0854434967041017}}"
+                "value": "{\"m_Value\":{\"x\":-36.911476135253909,\"y\":0.0,\"z\":-46.19141387939453}}"
             },
             {
                 "type": "UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
