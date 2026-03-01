@@ -38,10 +38,9 @@ public class ArwensButtonFollowVisual : MonoBehaviour
 
     private void Follow(HoverEnterEventArgs hover)
     {
-        Debug.Log($"[follow] interactor: {hover.interactorObject}");
-        
         if (hover.interactorObject is XRPokeInteractor pokeInteractor)
         {
+            Debug.Log($"[follow] interactor: {hover.interactorObject}");
             isFollowing = true;
             freeze = false;
 
@@ -60,10 +59,9 @@ public class ArwensButtonFollowVisual : MonoBehaviour
 
     private void Reset(BaseInteractionEventArgs hover)
     {
-        Debug.Log($"[reset] interactor: {hover.interactorObject}");
-        
         if (hover.interactorObject is XRPokeInteractor)
         {
+            Debug.Log($"[reset] interactor: {hover.interactorObject}");
             isFollowing = false;
             freeze = false;
         }
@@ -71,9 +69,8 @@ public class ArwensButtonFollowVisual : MonoBehaviour
 
     public void Freeze(BaseInteractionEventArgs hover)
     {
-        Debug.Log($"[freeze] interactor: {hover.interactorObject}");
-        
         if (hover.interactorObject is XRPokeInteractor)
+            Debug.Log($"[freeze] interactor: {hover.interactorObject}");
         {
             freeze = true;
         }
@@ -83,8 +80,8 @@ public class ArwensButtonFollowVisual : MonoBehaviour
     {
         if (freeze) return;
         
-        Transform selectedVisualTarget = visualTarget;
-        // Transform selectedVisualTarget = visualTarget.parent;
+        // Transform selectedVisualTarget = visualTarget;
+        Transform selectedVisualTarget = visualTarget.parent;
     
         if (isFollowing && pokeAttachTransform != null)
         {
@@ -118,21 +115,18 @@ public class ArwensButtonFollowVisual : MonoBehaviour
 
     public void Pressed(SelectEnterEventArgs hover)
     {
-        Debug.Log($"[pressed] interactor: {hover.interactorObject}");
-        
         if (hover.interactorObject is XRPokeInteractor)
         {
-            Debug.Log("pressed");
+            Debug.Log($"[pressed] interactor: {hover.interactorObject}");
             onPressed.Invoke();
         }
     }
     
     private void Depressed(SelectExitEventArgs hover)
     {
-        Debug.Log($"[depressed] interactor: {hover.interactorObject}");
-        
         if (hover.interactorObject is XRPokeInteractor)
         {
+            Debug.Log($"[depressed] interactor: {hover.interactorObject}");
             freeze = false;
             isFollowing = false;
         }

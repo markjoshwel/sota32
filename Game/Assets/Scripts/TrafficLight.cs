@@ -1,4 +1,5 @@
 using System.Collections;
+using PokkatCore;
 using UnityEngine;
 
 public class TrafficLight : MonoBehaviour
@@ -10,34 +11,57 @@ public class TrafficLight : MonoBehaviour
         Yellow,
         DisabledCrossing
     }
+
     [SerializeField] private Transform lightsObject;
     [SerializeField] private GameObject[] greenLights, yellowLights, redLights;
     [SerializeField] private float greenDuration = 5f, yellowDuration = 2f, redDuration = 5f, greenRedVariance = 2f;
     [SerializeField] private float disabledCrossingDuration = 30f; // Extended duration for disabled crossing
-    [SerializeField] private GameObject vehicleStopTriggerBox;
-    public State currentState = State.Red;
     
+    [SerializeField] private float startOffset = 0f; 
+    [SerializeField] private GameObject vehicleStopTriggerBox;
+    
+    public State currentState = State.Red;
     private bool disabledCrossingRequested = false;
     private Coroutine trafficLightCoroutine;
-    
+
     private IEnumerator TrafficLightCycle()
     {
+        // Apply the starting offset before the cycle begins
+        if (startOffset > 0f)
+        {
+            Logkat.Dev($"Traffic light waiting for start offset of {startOffset}s.");
+            yield return new WaitForSeconds(startOffset);
+        }
+
         while (true)
         {
             switch (currentState)
             {
                 case State.Yellow:
+                    Logkat.Dev($"Traffic light is YELLOW, and will wait {yellowDuration}s before switching to RED.");
                     yield return new WaitForSeconds(yellowDuration);
                     currentState = State.Red;
                     SetLights(redLights);
                     break;
                 case State.Green:
-                    yield return new WaitForSeconds(Random.Range(greenDuration-greenRedVariance,greenDuration+greenRedVariance));
+                    Logkat.Dev(
+                        $"Traffic light is GREEN, and will wait {greenDuration}s +/- {greenRedVariance}s before switching to YELLOW.");
+                    yield return new WaitForSeconds(Random.Range(greenDuration - greenRedVariance,
+                        greenDuration + greenRedVariance));
                     currentState = State.Yellow;
                     SetLights(yellowLights);
                     break;
                 case State.Red:
-                    yield return new WaitForSeconds(Random.Range(redDuration - greenRedVariance, redDuration + greenRedVariance));
+                    if (disabledCrossingRequested)
+                    {
+                        Logkat.Dev("Traffic light is RED with CROSSING REQUESTED. Switching.");
+                    }
+                    else
+                    {
+                        Logkat.Dev(
+                            $"Traffic light is RED, and will wait {redDuration}s +/- {greenRedVariance}s before switching to GREEN.");
+                    }
+
                     // Check if disabled crossing was requested during red state
                     if (disabledCrossingRequested)
                     {
@@ -46,11 +70,16 @@ public class TrafficLight : MonoBehaviour
                     }
                     else
                     {
+                        yield return new WaitForSeconds(Random.Range(redDuration - greenRedVariance,
+                            redDuration + greenRedVariance));
                         currentState = State.Green;
                         SetLights(greenLights);
                     }
+
                     break;
                 case State.DisabledCrossing:
+                    Logkat.Dev(
+                        $"Traffic light is DISABLED FOR CROSSING, and will wait for {disabledCrossingDuration}s before switching back to GREEN.");
                     yield return new WaitForSeconds(disabledCrossingDuration);
                     disabledCrossingRequested = false;
                     currentState = State.Green;
@@ -59,8 +88,6 @@ public class TrafficLight : MonoBehaviour
             }
         }
     }
-    
-
 
     private void SetLights(GameObject[] lightsArray)
     {
@@ -68,6 +95,7 @@ public class TrafficLight : MonoBehaviour
         {
             lightsObject.GetChild(i).gameObject.SetActive(false);
         }
+
         foreach (var light in lightsArray)
         {
             light.SetActive(true);
@@ -82,9 +110,9 @@ public class TrafficLight : MonoBehaviour
     public void RequestDisabledCrossing()
     {
         if (disabledCrossingRequested) return; // Already requested
-        
+
         disabledCrossingRequested = true;
-        
+
         // If currently green or yellow, immediately transition to disabled crossing
         if (currentState == State.Green || currentState == State.Yellow)
         {
@@ -96,6 +124,7 @@ public class TrafficLight : MonoBehaviour
 
     private void Start()
     {
+        Logkat.Dev("Traffic light started...");
         SetLights(redLights);
         StartCoroutine(TrafficLightCycle());
     }
