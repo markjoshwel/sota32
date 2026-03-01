@@ -184,8 +184,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 8.404789, y: 1.7245662, z: 0.6005516}
-  m_Center: {x: -6.1948576, y: 0.86228323, z: -0.05794525}
+  m_Size: {x: 4.102546, y: 1.7245662, z: 0.6005516}
+  m_Center: {x: -4.0437384, y: 0.86228323, z: -0.05794525}
 --- !u!54 &1150911208990985797
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -226,6 +226,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Car
   splineAnimator: {fileID: 3385195826400836223}
+  topSpeed: 8
+  accelerationTime: 1.4
+  decelerationTime: 0.8
+  startDelay: 0.5
+  detectionDistance: 4
 --- !u!1 &3474832127859046337
 GameObject:
   m_ObjectHideFlags: 0
