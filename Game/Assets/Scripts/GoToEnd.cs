@@ -1,4 +1,5 @@
 using System.Collections;
+using PokkatCore;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -32,8 +33,10 @@ public class GoToEnd : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Logkat.Dev("GoToEnd: trigger entered");
         if (other.CompareTag("Player"))
             TriggerEnd();
+        else Logkat.Dev($"GoToEnd: trigger entered by non-player object ({other.name}<{other.tag}>), ignoring");
     }
 
     /// <summary>
@@ -43,6 +46,7 @@ public class GoToEnd : MonoBehaviour
     public void TriggerEnd()
     {
         if (_isTransitioning) return;
+        Logkat.Dev("GoToEnd: transitioning");
         StartCoroutine(FadeAndLoad());
     }
 
@@ -52,10 +56,12 @@ public class GoToEnd : MonoBehaviour
     {
         _isTransitioning = true;
 
+        Logkat.Dev("GoToEnd: fading");
         // Fade from transparent to fadeColour
         yield return StartCoroutine(Fade(0f, 1f));
 
         // Load the menu scene
+        Logkat.Dev("GoToEnd: loading menu");
         SceneManager.LoadScene("Menu");
     }
 

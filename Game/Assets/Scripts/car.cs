@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 
 [RequireComponent(typeof(SplineAnimate))]
@@ -165,23 +166,29 @@ public class Car : MonoBehaviour
         return false;
     }
 
+    private static bool IsRedState(TrafficLight.State state)
+    {
+        return state == TrafficLight.State.Red || state == TrafficLight.State.DisabledCrossing;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("TrafficLight"))
         {
             _currentTrafficLight = other.transform.parent.GetComponent<TrafficLight>();
-            if (_currentTrafficLight != null && _currentTrafficLight.currentState == TrafficLight.State.Red)
+            if (_currentTrafficLight != null && IsRedState(_currentTrafficLight.currentState))
                 _blockedByLight = true;
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("TrafficLight") && _blockedByLight
-            && _currentTrafficLight != null
-            && _currentTrafficLight.currentState == TrafficLight.State.Green)
+        if (other.CompareTag("TrafficLight") && _currentTrafficLight != null)
         {
-            _blockedByLight = false;
+            if (!_blockedByLight && IsRedState(_currentTrafficLight.currentState))
+                _blockedByLight = true;
+            else if (_blockedByLight && _currentTrafficLight.currentState == TrafficLight.State.Green)
+                _blockedByLight = false;
         }
     }
 
@@ -193,7 +200,7 @@ public class Car : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        // TODO: kill player
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnDrawGizmosSelected()

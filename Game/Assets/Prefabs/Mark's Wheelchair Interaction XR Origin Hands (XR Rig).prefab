@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 8957382029926018022}
   m_Layer: 0
   m_Name: Right Wheel Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1510,7 +1510,7 @@ GameObject:
   - component: {fileID: 8666847258935187426}
   m_Layer: 0
   m_Name: Frame Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1778,7 +1778,7 @@ GameObject:
   - component: {fileID: 8185994100706579741}
   m_Layer: 0
   m_Name: Caster Right Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2597,7 +2597,7 @@ GameObject:
   - component: {fileID: 8844288964982344440}
   m_Layer: 0
   m_Name: Left Wheel Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2869,7 +2869,7 @@ GameObject:
   - component: {fileID: 8107633217131125631}
   m_Layer: 0
   m_Name: Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2909,7 +2909,7 @@ GameObject:
   - component: {fileID: 2402587501732623699}
   m_Layer: 0
   m_Name: Caster Left Physics
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
